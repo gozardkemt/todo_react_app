@@ -1,5 +1,5 @@
 import React from 'react';
-import {markAsDoneOrUndone, removeItemFromList} from './appService.js';
+import {markAsDoneOrUndone, removeItemFromList, toggleAllDone} from './appService.js';
 import './App.css';
 
 const defaultState = {
@@ -50,7 +50,7 @@ export default class App extends React.Component {
 
 	}
 
-	markAsDone = (e) => {
+	markAsDone = e => {
 
 		const id = e.currentTarget.nextSibling.nextSibling.id;
 		const newDone = !this.state.todos[id].done;
@@ -61,6 +61,20 @@ export default class App extends React.Component {
 
 	}
 
+	toggleAllDone = e => {
+
+		const bool = e.target.id === 'true' ? true : false;
+		document.getElementsByClassName('arrow')[0].id = String(!bool);
+
+		this.setState({
+			todos: toggleAllDone( this.state.todos, bool)
+		})
+
+	}
+
+
+	markAllasDone
+
 	render() {
 		const { todos, filter, currentvalue} = this.state;
 		const left = todos.filter( (todo) => todo.done === false );
@@ -69,7 +83,8 @@ export default class App extends React.Component {
 			<div className="app">
 			    < Title/>
 				< Input
-					onClick={this.setCurrentValue}
+					onChange={this.setCurrentValue}
+					onClick={this.toggleAllDone}
 					value={currentvalue}
 					/>
 				< List
@@ -94,8 +109,8 @@ const Input = (props) => {
 
 	return (
 		<div className="inputWrapper">
-		    <label className="arrow"></label>
-		    <input className="input" onChange={props.onClick} value={props.value} placeholder="things to do"/>
+		    <label className="arrow" onClick={props.onClick} id="true"></label>
+		    <input className="input" onChange={props.onChange} value={props.value} placeholder="things to do"/>
 		</div>
 		)
 }
@@ -122,7 +137,7 @@ class ListItem extends React.Component {
 		return (
 			<div className="listItemWrapper">
 				<input style={{cursor: 'pointer'}} type="radio" className="radio" onClick={onChange} checked={todo.done}/>
-				<div className="listItem"><span style={textStyle} className="itemText">{todo.value}</span></div>
+				<div className="listItem"><span contenteditable="true" style={textStyle} className="itemText">{todo.value}</span></div>
 				<b className="x" id={i} onClick={clear}>x</b>
 			</div>
 		)
