@@ -1,38 +1,101 @@
-.App {
+
+.app {
   text-align: center;
+  color: lightgray;
+  font-family: 'Roboto';
+  width: 15rem;
+  margin: 5rem auto 1rem auto;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.title {
+	font-size: 6rem;
+	font-weight: 10;
+	margin: unset;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Input */
+
+.inputWrapper,
+.listItemWrapper  {
+	border: 1px solid #DDD;
+	display: flex;
+	flex-direction: row;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.listItemWrapper {
+	border-top: unset;
 }
 
-.App-link {
-  color: #61dafb;
+.arrow::before {
+	content: '❯';
+	font-size: 22px;
+	color: #e6e6e6;
+	position: absolute;
+	margin: auto;
+	top: -13px;
+	left: -5px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.arrow {
+	transform: rotate(90deg);
+	cursor: pointer
+}
+
+.input,
+.listItem {
+	width: 100%;
+	height: 3rem;
+	color: gray;
+	padding: 0.5rem;
+	font-size: 1rem;
+	box-sizing: border-box;
+	border: none;
+}
+
+.input {
+	padding-left: 45px;
+}
+
+/*  Item List  */
+
+.listItem {
+	padding-left: 0;
+	padding-right: 0;
+	text-align: left;
+	height: auto;
+}
+
+
+.radio {
+	margin: 1rem;
+}
+
+
+.itemText {
+	line-height: 2rem;
+	height: 100%;
+}
+
+.x {
+	margin: 1rem;
+	cursor: pointer
+
+}
+
+/*  Bottom Bar */
+
+.bottomBar {
+	background-color: lightgray;
+	color: white;
+	text-align: left;
+	height: min-content;
+	padding: 0.5em 0.6em;
+
+}
+
+.bottomLink {
+	padding-left: 0.5rem;
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+	cursor: pointer;
 }
