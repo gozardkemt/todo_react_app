@@ -8,5 +8,6 @@ export const markAsDoneOrUndone = (id, bool, list) => {
 
 export const toggleAllDone = (list, bool) => list.map( (item) => { return { value: item.value, done: Boolean(bool) }});
 
+export const clearAllDone = (list) => list.filter( (item) => item.done === false );
 
 export const removeItemFromList = (id, list) => list.filter( (todo, i) => i !== parseInt(id) );

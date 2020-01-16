@@ -1,5 +1,5 @@
 import React from 'react';
-import {markAsDoneOrUndone, removeItemFromList, toggleAllDone} from './appService.js';
+import {markAsDoneOrUndone, removeItemFromList, toggleAllDone, clearAllDone} from './appService.js';
 import './App.css';
 
 const defaultState = {
@@ -13,10 +13,7 @@ export default class App extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = defaultState;
-
-		document.addEventListener('keydown', (e) => {
-			if (e.keyCode === 13) { this.addItemToList() }
-		})
+		this.arrow = React.createRef()
 	}
 
 	setCurrentValue = (e) => {
@@ -29,7 +26,9 @@ export default class App extends React.Component {
 		this.setState({ filter: e.currentTarget.id })
 	}
 
-	addItemToList = () => {
+	addItemToList = (e) => {
+
+		if (e.keyCode !== 13) { return }
 
 		const newValue = this.state.currentvalue;
 		if (!newValue) { return };
@@ -50,6 +49,13 @@ export default class App extends React.Component {
 
 	}
 
+	clearAllDone = () => {
+
+		this.setState({
+			todos: clearAllDone(this.state.todos)
+		})
+	}
+
 	markAsDone = e => {
 
 		const id = e.currentTarget.nextSibling.nextSibling.id;
@@ -63,29 +69,26 @@ export default class App extends React.Component {
 
 	toggleAllDone = e => {
 
-		const bool = e.target.id === 'true' ? true : false;
-		document.getElementsByClassName('arrow')[0].id = String(!bool);
+		this.bool = e.target.id === 'true' ? true : false;
+		this.arrow.current.id = String(!this.bool);
 
 		this.setState({
-			todos: toggleAllDone( this.state.todos, bool)
+			todos: toggleAllDone( this.state.todos, this.bool)
 		})
 
 	}
 
-
-	markAllasDone
-
 	render() {
 		const { todos, filter, currentvalue} = this.state;
-		const left = todos.filter( (todo) => todo.done === false );
 
 		return (
-			<div className="app">
+			<div className="app" onKeyUp={this.addItemToList} >
 			    < Title/>
 				< Input
 					onChange={this.setCurrentValue}
 					onClick={this.toggleAllDone}
 					value={currentvalue}
+					arrow={this.arrow}
 					/>
 				< List
 					todos={todos}
@@ -94,9 +97,9 @@ export default class App extends React.Component {
 					filter={filter}
 					/>
 				< BottomBar
-					left={left.length}
-					count={todos.length}
 					onClick={this.setFilter}
+					clearAllDone={this.clearAllDone}
+					todos={todos}
 						 />
 			</div>
 		  )
@@ -105,25 +108,27 @@ export default class App extends React.Component {
 
 const Title = () => { return <h1 className="title" >todos</h1> }
 
-const Input = (props) => {
+class Input extends React.Component {
 
-	return (
-		<div className="inputWrapper">
-		    <label className="arrow" onClick={props.onClick} id="true"></label>
-		    <input className="input" onChange={props.onChange} value={props.value} placeholder="things to do"/>
-		</div>
-		)
+	render() {
+
+		return (
+			<div className="inputWrapper">
+			    <label className="arrow" onClick={this.props.onClick} ref={this.props.arrow} id="true"></label>
+			    <input autoFocus className="input" onChange={this.props.onChange} value={this.props.value} placeholder="things to do"/>
+			</div>
+			)
+	}
 }
 
-const List = (props) => {
+const List = ({ filter, clear, onChange, todos}) => {
 
-	let { filter, clear, onChange, todos:items} = props;
-	if (items.length < 1) { return null };
+	if (todos.length < 1) { return null };
 
-	if (filter === 'active') { items = items.filter( (todo) => todo.done === false ) }
-	if (filter === 'completed') { items = items.filter( (todo) => todo.done === true ) }
+	if (filter === 'active') { todos = clearAllDone(todos) }
+	if (filter === 'completed') { todos = todos.filter( (todo) => todo.done === true ) }
 
-	return items.map( (item, i) => < ListItem todo={item} key={i} i={i} clear={clear} onChange={onChange} /> )
+	return todos.map( (item, i) => < ListItem todo={item} key={i} i={i} clear={clear} onChange={onChange} /> )
 
 }
 
@@ -132,29 +137,40 @@ class ListItem extends React.Component {
 	render() {
 
 		const { todo, clear, onChange, i} = this.props;
-		const textStyle = todo.done ? { color: 'lightgray', textDecoration: 'line-through gray' } : {};
+		const todoStyle = todo.done ? { color: 'lightgray', textDecoration: 'line-through gray' } : {};
 
 		return (
 			<div className="listItemWrapper">
-				<input style={{cursor: 'pointer'}} type="radio" className="radio" onClick={onChange} checked={todo.done}/>
-				<div className="listItem"><span contenteditable="true" style={textStyle} className="itemText">{todo.value}</span></div>
+				<input style={{cursor: 'pointer'}} type='checkbox' className="checkbox" onChange={onChange} checked={todo.done}/>
+				<input style={todoStyle} className="inputInList" value={todo.value} readOnly={true} />
 				<b className="x" id={i} onClick={clear}>x</b>
 			</div>
 		)
 	}
 }
 
-const BottomBar = ({left, count, onClick}) => {
+const BottomBar = ({ onClick, todos, clearAllDone:clearClick}) => {
 
-	if ( count === 0 ) { return null }
-	const bottomLinks = ['all', 'active', 'completed']
+	if ( todos.length === 0 ) { return null }
+
+	const bottomLinks = ['all', 'active', 'completed'];
+	const activeTodos = clearAllDone(todos);
 
 	return (
 		<div className="bottomBar">
-			<small style={{paddingLeft: '0.5rem'}}>{left} items left</small>
+			<small style={{paddingLeft: '0.5rem'}}>{activeTodos.length} left</small>
 			{ bottomLinks.map( (name) => <BottomLink name={name} key={name} onClick={onClick} />) }
+			< BottomClear onClick={clearClick} todos={todos}/>
 		</div>
 	)
 }
 
 const BottomLink = ({name, onClick}) => <small className="bottomLink" id={name} onClick={onClick}>{name}</small>
+
+const BottomClear = ({ onClick, todos }) => {
+
+	if (todos.some( (item) => item.done === true )) {
+		return <small className="bottomLink" id="clear" onClick={onClick}>clear</small>
+	}
+	return null
+}
