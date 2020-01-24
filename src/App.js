@@ -1,5 +1,5 @@
 import React from 'react';
-import {markAsDoneOrUndone, removeItemFromList, toggleAllDone, clearAllDone} from './appService.js';
+import {toggleOneDone, removeOne, toggleAllDone, removeAllDone} from './appService.js';
 import './App.css';
 
 const defaultState = {
@@ -16,7 +16,7 @@ export default class App extends React.Component {
 		this.arrow = React.createRef()
 	}
 
-	setCurrentValue = (e) => {
+	setCurrentValue = e => {
 		this.setState({
 			currentvalue: e.currentTarget.value
 		})
@@ -26,7 +26,7 @@ export default class App extends React.Component {
 		this.setState({ filter: e.currentTarget.id })
 	}
 
-	addItemToList = (e) => {
+	addItemToList = e => {
 
 		if (e.keyCode !== 13) { return }
 
@@ -41,18 +41,18 @@ export default class App extends React.Component {
 		})
 	}
 
-	clearItemFromList = (e) => {
+	clearItemFromList = e => {
 
 		this.setState({
-			todos: removeItemFromList(e.target.id, this.state.todos)
+			todos: removeOne(e.target.id, this.state.todos)
 		})
 
 	}
 
-	clearAllDone = () => {
+	removeAllDone = () => {
 
 		this.setState({
-			todos: clearAllDone(this.state.todos)
+			todos: removeAllDone(this.state.todos)
 		})
 	}
 
@@ -62,7 +62,7 @@ export default class App extends React.Component {
 		const newDone = !this.state.todos[id].done;
 
 		this.setState({
-			todos: markAsDoneOrUndone(id, newDone, this.state.todos)
+			todos: toggleOneDone(id, newDone, this.state.todos)
 		})
 
 	}
@@ -98,7 +98,7 @@ export default class App extends React.Component {
 					/>
 				< BottomBar
 					onClick={this.setFilter}
-					clearAllDone={this.clearAllDone}
+					removeAllDone={this.removeAllDone}
 					todos={todos}
 						 />
 			</div>
@@ -125,7 +125,7 @@ const List = ({ filter, clear, onChange, todos}) => {
 
 	if (todos.length < 1) { return null };
 
-	if (filter === 'active') { todos = clearAllDone(todos) }
+	if (filter === 'active') { todos = removeAllDone(todos) }
 	if (filter === 'completed') { todos = todos.filter( (todo) => todo.done === true ) }
 
 	return todos.map( (item, i) => < ListItem todo={item} key={i} i={i} clear={clear} onChange={onChange} /> )
@@ -149,12 +149,12 @@ class ListItem extends React.Component {
 	}
 }
 
-const BottomBar = ({ onClick, todos, clearAllDone:clearClick}) => {
+const BottomBar = ({ onClick, todos, removeAllDone:clearClick}) => {
 
 	if ( todos.length === 0 ) { return null }
 
 	const bottomLinks = ['all', 'active', 'completed'];
-	const activeTodos = clearAllDone(todos);
+	const activeTodos = removeAllDone(todos);
 
 	return (
 		<div className="bottomBar">
